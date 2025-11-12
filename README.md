@@ -55,6 +55,7 @@ The project is modularized into independent components:
 |--------|--------------|
 | `tokenizer.ts` | Splits expressions into tokens. |
 | `polish-parser.ts` | Converts tokens from infix to postfix (RPN). |
+| `PreprocessModule.ts` | Normalizes and transforms mathematical expressions — replaces symbols, standardizes syntax, and prepares input for tokenization..|
 | `polish-evaluator.ts` | Evaluates the postfix expressions. |
 | `functionsModule.ts` | Handles built-in and custom functions. |
 | `polish-engine.ts` | High-level API for developers. |
@@ -68,6 +69,7 @@ polish-engine/
 │   ├── tokenizer.ts         # Expression tokenizer
 │   ├── polish-parser.ts     # Converts infix expressions to RPN
 │   ├── polish-evaluator.ts  # Evaluates RPN and functions
+│   ├── PreprocessModule.ts  # Normalizes and transforms expressions (symbols → functions)
 │   └── functionsModule.ts   # Custom mathematical functions
 │
 ├── tests/
@@ -132,7 +134,7 @@ Example output:
 import { Tokenizer } from "./tokenizer";
 import { parser } from "./polish-parser";
 import { evaluator } from "./polish-evaluator";
-import { ButtonFunctions } from "./functionsModule";
+import { preprocessExpression } from "./PreprocessModule";
 import Complex from "complex.js";
 
 export class polishEngine {
@@ -141,7 +143,7 @@ export class polishEngine {
     private Evaluator = new evaluator();
 
     evaluate(expression: string, variables?: Record<string, number>) {
-        const preprocessed = this.tokenizer.preprocessExpression(expression);
+        const preprocessed = preprocessExpression(expression);
         const tokens = this.tokenizer.tokenize(preprocessed);
         const rpn = this.Parser.toPostFix(tokens);
         const result = this.Evaluator.evaluatePostFix(rpn, variables);

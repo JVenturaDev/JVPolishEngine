@@ -1,7 +1,7 @@
 import { Tokenizer } from "./tokenizer";
 import { parser } from "./polish-parser";
 import { evaluator } from "./polish-evaluator";
-import { ButtonFunctions } from "./functionsModule";
+import { preprocessExpression } from "./PreprocessModule";
 import Complex from "complex.js";
 export class polishEngine {
     private tokenizer = new Tokenizer();
@@ -9,7 +9,7 @@ export class polishEngine {
     private Evaluator = new evaluator();
 
     evaluate(expression: string, variables?: Record<string, number>) {
-        const preprocessed = this.tokenizer.preprocessExpression(expression);
+        const preprocessed = preprocessExpression(expression);
         const tokens = this.tokenizer.tokenize(preprocessed);
         const rpn = this.Parser.toPostFix(tokens);
         const result = this.Evaluator.evaluatePostFix(rpn, variables);
@@ -21,6 +21,6 @@ export class polishEngine {
         return result;
     }
 
-}   
+}
 const engine = new polishEngine;
 console.log(engine.evaluate("6*10-20*9"));
