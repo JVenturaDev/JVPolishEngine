@@ -25,6 +25,9 @@ describe("parser and tokenizer", () => {
     test("right-associative exponent", () => {
         expect(tokensValues("2^3^2")).toEqual(["2", "3", "2", "^", "^"]);
     });
+    test("right-associative exponent2", () => {
+        expect(tokensValues("3^2!")).toEqual(["3", "2", "!", "^"]);
+    });
     test('debug sin(0)', () => {
         const tokens = tokenizer.tokenize('5-2');
         const postfix = p.toPostFix(tokens);

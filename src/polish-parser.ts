@@ -13,6 +13,7 @@ export class parser {
         const output: Token[] = [];
         const opStack: Token[] = [];
         const precedence: Record<string, number> = {
+            '!': 5,
             '^': 4,
             '*': 3,
             '/': 3,
@@ -20,6 +21,7 @@ export class parser {
             '+': 2,
         };
         const rigthassociative: Record<string, boolean> = {
+            '!': true,
             '^': true,
             '*': false,
             '/': false,

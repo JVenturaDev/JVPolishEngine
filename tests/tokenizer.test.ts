@@ -21,6 +21,10 @@ describe('Tokenizer', () => {
         const tokens = tokenizer.tokenize('4!');
         expect(tokens.map(t => t.value)).toEqual(['4', '!']);
     });
+    test('tokenizes factorial2', () => {
+        const tokens = tokenizer.tokenize('3^2!');
+        expect(tokens.map(t => t.value)).toEqual(['3', '^','2','!']);
+    });
     test('tokenizes variables and negative numbers', () => {
         const tokens = tokenizer.tokenize('-x+5');
         expect(tokens.map(t => t.value)).toEqual(['-x', '+', '5']);

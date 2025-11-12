@@ -6,6 +6,7 @@ export class evaluator {
     }
     public evaluatePostFix(tokens: Token[], variables: Record<string, number> = {}): number | Complex {
         const stack: (number | Complex)[] = [];
+        const unaryOps = new Set(['!', 'u-']);
         const toReal = (val: number | Complex): Complex => {
             if (val instanceof Complex) return val;
             return new Complex(val);
@@ -27,13 +28,11 @@ export class evaluator {
             }
             // operator if
             else if (token.type === 'operator') {
-                if (token.value === '-' && stack.length === 1) {
-                    // operador unario
+                if (unaryOps.has(token.value)) {
                     const a = stack.pop();
                     if (a === undefined) throw new Error('Error: operandos insuficientes');
-                    stack.push(-a);
+                    stack.push(this.applyOperation(token.value, a));
                 } else {
-                    // operador binario
                     const b = stack.pop();
                     const a = stack.pop();
                     if (a === undefined || b === undefined)
@@ -41,7 +40,7 @@ export class evaluator {
                     stack.push(this.applyOperation(token.value, a, b));
                 }
             }
-            
+
             // function if
             else if (token.type === 'function') {
                 const a = stack.pop();
@@ -79,7 +78,6 @@ export class evaluator {
                     case 'cbrt': stack.push(toReal(a).pow(new Complex(1 / 3))); break;
                     case 'abs': stack.push(Math.abs(toReal(a).re)); break;
                     case '%': stack.push(toReal(a).re * 0.01); break;
-                    case 'factorial': stack.push(factorial(toReal(a).re)); break;
 
                     // Funciones de varios argumentos
                     case 'logxy': {
@@ -130,16 +128,24 @@ export class evaluator {
 
         return stack[0];
     }
-    private applyOperation(op: string, a: number | Complex, b: number | Complex): number | Complex {
+    private applyOperation(op: string, a: number | Complex, b?: number | Complex): number | Complex {
         const A = a instanceof Complex ? a : new Complex(a);
-        const B = b instanceof Complex ? b : new Complex(b);
+        const B = b instanceof Complex ? b : b !== undefined ? new Complex(b) : undefined;
 
         switch (op) {
-            case '+': return A.add(B);
-            case '-': return A.sub(B);
-            case '*': return A.mul(B);
-            case '/': return A.div(B);
-            case '^': return A.pow(B);
+            // operadores binarios
+            case '+': return A.add(B!);
+            case '-': return A.sub(B!);
+            case '*': return A.mul(B!);
+            case '/': return A.div(B!);
+            case '^': return A.pow(B!);
+
+            // operador unario factorial
+            case '!':
+                if (a instanceof Complex) throw new Error("No se puede calcular factorial de un número complejo");
+                return factorial(a);
+
+            // comparadores
             case '<':
             case '>':
             case '≤':
@@ -151,16 +157,16 @@ export class evaluator {
                 if (a instanceof Complex || b instanceof Complex)
                     throw new Error("No se pueden comparar números complejos");
                 switch (op) {
-
-                    case '<': return a < b ? 1 : 0;
-                    case '>': return a > b ? 1 : 0;
-                    case '≤': return a <= b ? 1 : 0;
-                    case '≥': return a >= b ? 1 : 0;
+                    case '<': return a < b! ? 1 : 0;
+                    case '>': return a > b! ? 1 : 0;
+                    case '≤': return a <= b! ? 1 : 0;
+                    case '≥': return a >= b! ? 1 : 0;
                     case '=':
                     case '==':
-                    case '⩵': return a === b ? 1 : 0;
-                    case '≠': return a !== b ? 1 : 0;
+                    case '⩵': return a === b! ? 1 : 0;
+                    case '≠': return a !== b! ? 1 : 0;
                 }
+
             default:
                 throw new Error(`Operador desconocido: ${op}`);
         }

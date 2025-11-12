@@ -31,6 +31,11 @@ describe('polishEngine', () => {
         expect(result).toBe(24);
 
     });
+    test("should calculate factorial elevation", () => {
+        const result = engine.evaluate("3^2!");
+        expect(result).toBe(9);
+
+    });
     test("pi", () => {
         const result = engine.evaluate("π");
         expect(result).toBe(3.141592653589793);

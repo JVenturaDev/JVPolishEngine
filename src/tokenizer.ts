@@ -3,7 +3,7 @@ export interface Token {
     value: string;
 }
 export class Tokenizer {
-    private readonly operators = '+-*/^';
+    private readonly operators = '+-*/^!';
     private readonly functions = [
         'sin', 'cos', 'tan', 'asin', 'acos', 'atan',
         'asec', 'acsc', 'acot',
@@ -90,16 +90,6 @@ export class Tokenizer {
                 tokens.push({ type: 'paren', value: char });
                 lastToken = tokens[tokens.length - 1];
             }
-
-            else if (char === '!') {
-                if (current) {
-                    tokens.push(this.createToken(current));
-                    current = '';
-                }
-                tokens.push({ type: 'operator', value: '!' });
-                lastToken = tokens[tokens.length - 1];
-            }
-
             else if (char === ' ') continue;
         }
 

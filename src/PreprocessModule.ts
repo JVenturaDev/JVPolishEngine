@@ -58,7 +58,6 @@ export function preprocessExpression(expr: string): string {
     output = output
         .replace(/\bπ\b/g, 'π')
         .replace(/\be\b/g, 'e')
-        .replace(/(\d+|\([^()]+\))!/g, 'factorial($1)');
 
     const openParens = (output.match(/\(/g) || []).length;
     const closeParens = (output.match(/\)/g) || []).length;

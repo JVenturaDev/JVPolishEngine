@@ -60,7 +60,7 @@ describe('evaluator', () => {
         expect(evalExpr('sqrt(4)')).toBe(2);
         expect(evalExpr('cbrt(27)')).toBe(3);
         expect(evalExpr('abs(-5)')).toBe(5);
-        expect(evalExpr('factorial(4)')).toBe(24);
+        expect(evalExpr('4!')).toBe(24);
         expect(evalExpr('%(50)')).toBe(0.5);
     });
 
