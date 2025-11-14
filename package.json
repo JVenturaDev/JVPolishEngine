@@ -1,12 +1,32 @@
 {
-  "name": "motor-polaco",
+  "name": "polish-engine",
   "version": "1.0.0",
+  "description": "Polish notation math engine for evaluating complex mathematical expressions.",
   "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "jest",
     "start": "node dist/polish-engine.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JVenturaDev/JVPolishEngine"
+  },
+  "keywords": [
+    "math",
+    "rpn",
+    "polish-notation",
+    "calculator",
+    "typescript",
+    "engine"
+  ],
+  "author": "Jonathan Ventura",
+  "license": "GPL-3.0",
   "dependencies": {
     "complex.js": "^2.4.2"
   },

@@ -1,7 +1,7 @@
 import { Tokenizer } from "./tokenizer";
 import { parser } from "./polish-parser";
 import { evaluator } from "./polish-evaluator";
-import { preprocessExpression } from "./PreprocessModule";
+import { preprocessExpression } from "./preprocessModule";
 import Complex from "complex.js";
 export class polishEngine {
     private tokenizer = new Tokenizer();

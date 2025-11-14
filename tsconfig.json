@@ -9,10 +9,8 @@
         "skipLibCheck": true,
         "outDir": "dist",
         "rootDir": "src",
-        "resolveJsonModule": true
-    },
-    "scripts": {
-        "build": "tsc"
+        "resolveJsonModule": true,
+        "declaration": true
     },
     "include": [
         "src/**/*"
