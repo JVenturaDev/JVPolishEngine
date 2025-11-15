@@ -1,6 +1,6 @@
 {
   "name": "polish-engine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Polish notation math engine for evaluating complex mathematical expressions.",
   "type": "module",
   "main": "dist/index.js",
