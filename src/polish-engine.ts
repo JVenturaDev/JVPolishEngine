@@ -22,5 +22,4 @@ export class polishEngine {
     }
 
 }
-const engine = new polishEngine;
-console.log(engine.evaluate("6*10-20*9"));
+

@@ -24,7 +24,6 @@ describe('evaluator', () => {
     test('evaluates simple numbers', () => {
         expect(evalExpr('2')).toBe(2);
         expect(evalExpr('3.5')).toBe(3.5);
-        console.log(evalExpr("sqrt(-9)"));
     });
 
     test('evaluates constants', () => {
