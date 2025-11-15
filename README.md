@@ -13,9 +13,17 @@ A lightweight, TypeScript-based math expression evaluator that uses **Reverse Po
 ---
 
 ##  Installation
+
+### From npm
+
+```bash
+npm install polish-engine
+```
+### Or from GitHub repository
 ```bash
 git clone https://github.com/JVenturaDev/JVPolishEngine.git
 cd polish-engine
+npm install
 ```
 
 ---
