@@ -8,7 +8,7 @@ A lightweight, TypeScript-based math expression evaluator that uses **Reverse Po
 - Evaluates real and **complex numbers** using [`complex.js`](https://github.com/infusion/Complex.js).
 - Supports **custom functions**, **variables**, and **operator precedence**.
 - Written entirely in **TypeScript** for strong typing and easy integration.
-- Unit tested with **Jest**.
+- Unit tested with **vitest**.
 
 ---
 
@@ -88,7 +88,7 @@ polish-engine/
 │
 ├── package.json
 ├── tsconfig.json
-├── jest.config.js
+├── vitest.config.ts
 ├── LICENCE
 └── README.md
 
@@ -109,10 +109,10 @@ console.log(result); // 5
 
 ##  Running Tests
 
-Run all unit tests using Jest:
+Run all unit tests using vitest:
 
 ```bash
-npx jest --verbose
+npm test
 ```
 
 Example output:
@@ -130,7 +130,7 @@ Example output:
 ##  Tech Stack
 
 - **Language:** TypeScript
-- **Testing:** Jest
+- **Testing:** vitest
 - **Math Library:** complex.js
 - **Module Format:** ES Modules
 

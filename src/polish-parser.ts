@@ -1,4 +1,4 @@
-import { Tokenizer, Token } from "./tokenizer";
+import { Tokenizer, Token } from "./tokenizer.js";
 export class parser {
     constructor(private tokenizer: Tokenizer) { }
     public testPostfix(expression: string): void {

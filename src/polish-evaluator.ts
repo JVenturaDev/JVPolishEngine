@@ -1,6 +1,6 @@
 import { Complex } from 'complex.js';
-import { Token } from './tokenizer';
-import { factorial } from './functionsModule';
+import { Token } from './tokenizer.js';
+import { factorial } from './functionsModule.js';
 export class evaluator {
     constructor() {
     }

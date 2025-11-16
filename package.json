@@ -1,6 +1,6 @@
 {
   "name": "polish-engine",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Polish notation math engine for evaluating complex mathematical expressions.",
   "type": "module",
   "main": "dist/index.js",
@@ -10,8 +10,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "jest",
-    "start": "node dist/polish-engine.js"
+    "test": "vitest",
+    "start": "node dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -31,9 +31,8 @@
     "complex.js": "^2.4.2"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "jest": "^30.2.0",
-    "ts-jest": "^29.4.5",
-    "typescript": "^5.9.3"
+    "@types/complex.js": "^2.0.5",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.9"
   }
 }

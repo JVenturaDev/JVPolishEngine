@@ -1,9 +1,9 @@
-import { polishEngine } from "./polish-engine";
-import { Tokenizer } from "./tokenizer";
-import { parser } from "./polish-parser";
-import { evaluator } from "./polish-evaluator";
-import { preprocessExpression } from "./preprocessModule";
-import { factorial } from "./functionsModule";
+import { polishEngine } from "./polish-engine.js";
+import { Tokenizer } from "./tokenizer.js";
+import { parser } from "./polish-parser.js";
+import { evaluator } from "./polish-evaluator.js";
+import { preprocessExpression } from "./preprocessModule.js";
+import { factorial } from "./functionsModule.js";
 
 export {
     polishEngine,
