@@ -1,5 +1,7 @@
 import { Tokenizer } from "../src/tokenizer";
 import { parser } from "../src/polish-parser";
+import { describe, test, expect } from "vitest";
+
 describe("parser and tokenizer", () => {
     const tokenizer = new Tokenizer;
     const p = new parser(tokenizer);
@@ -28,14 +30,9 @@ describe("parser and tokenizer", () => {
     test("right-associative exponent2", () => {
         expect(tokensValues("3^2!")).toEqual(["3", "2", "!", "^"]);
     });
-    test('debug sin(0)', () => {
+    test('subtraction keeps operands in postfix order', () => {
         const tokens = tokenizer.tokenize('5-2');
         const postfix = p.toPostFix(tokens);
-        console.log('Postfix:', postfix.map(t => t.value).join(' '));
-        console.log('Tokens:', tokens.map(t => `${t.value}:${t.type}`));
-
-        console.log('Postfija:', postfix.map(t => `${t.value}:${t.type}`));
-
-
+        expect(postfix.map(t => t.value)).toEqual(['5', '2', '-']);
     });
 });

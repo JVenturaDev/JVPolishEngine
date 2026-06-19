@@ -1,4 +1,6 @@
 import { Tokenizer } from "../src/tokenizer";
+import { describe, test, expect } from "vitest";
+
 describe('Tokenizer', () => {
     const tokenizer = new Tokenizer;
     test('tokenizes simple numbers and operators', () => {
@@ -23,7 +25,7 @@ describe('Tokenizer', () => {
     });
     test('tokenizes factorial2', () => {
         const tokens = tokenizer.tokenize('3^2!');
-        expect(tokens.map(t => t.value)).toEqual(['3', '^','2','!']);
+        expect(tokens.map(t => t.value)).toEqual(['3', '^', '2', '!']);
     });
     test('tokenizes variables and negative numbers', () => {
         const tokens = tokenizer.tokenize('-x+5');

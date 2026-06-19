@@ -1,192 +1,414 @@
-# Polish Engine 
+# Polish Engine
 
-A lightweight, TypeScript-based math expression evaluator that uses **Reverse Polish Notation (RPN)** for accurate and extensible computation.
+Polish Engine is a lightweight TypeScript math engine for evaluating expressions with Reverse Polish Notation (RPN), normalized output, complex number support, and step-by-step evaluation traces.
 
-##  Features
+It is designed for calculators, educational tools, math UIs, and any project that needs predictable expression evaluation in JavaScript or TypeScript.
 
-- Converts infix expressions to **Reverse Polish Notation (RPN)**.
-- Evaluates real and **complex numbers** using [`complex.js`](https://github.com/infusion/Complex.js).
-- Supports **custom functions**, **variables**, and **operator precedence**.
-- Written entirely in **TypeScript** for strong typing and easy integration.
-- Unit tested with **vitest**.
+## Features
 
----
+- Converts infix expressions to Reverse Polish Notation (RPN).
+- Evaluates real and complex numbers with [`complex.js`](https://github.com/infusion/Complex.js).
+- Supports variables, implicit multiplication, common math functions, operator precedence, and factorial.
+- Returns normalized values by default for stable UI and API output.
+- Returns evaluation steps by default for debugging, tracing, and educational experiences.
+- Written in TypeScript and tested with Vitest.
 
-##  Installation
-
-### From npm
+## Installation
 
 ```bash
 npm install polish-engine
 ```
-### Or from GitHub repository
-```bash
-git clone https://github.com/JVenturaDev/JVPolishEngine.git
-cd polish-engine
-npm install
-```
 
----
-
-##  Usage
-
-### Example 1: Basic Arithmetic
+## Quick Start
 
 ```ts
 import { polishEngine } from "polish-engine";
 
 const engine = new polishEngine();
 
-console.log(engine.evaluate("2 + 3 * 4")); // 14
-console.log(engine.evaluate("(2 + 3) * 4")); // 20
+engine.evaluate("2 + 3");
+// {
+//   result: { type: "real", value: 5, display: "5" },
+//   steps: [
+//     {
+//       type: "Operator",
+//       name: "+",
+//       operands: [
+//         { type: "real", value: 2, display: "2" },
+//         { type: "real", value: 3, display: "3" }
+//       ],
+//       result: { type: "real", value: 5, display: "5" },
+//       stackBefore: [
+//         { type: "real", value: 2, display: "2" },
+//         { type: "real", value: 3, display: "3" }
+//       ],
+//       stackAfter: [
+//         { type: "real", value: 5, display: "5" }
+//       ]
+//     }
+//   ]
+// }
 ```
 
-### Example 2: Using Variables
+## Breaking Changes in v2
+
+In v1, `evaluate()` returned the evaluated value directly:
 
 ```ts
-console.log(engine.evaluate("a^2 + b^2", { a: 3, b: 4 })); // 25
+engine.evaluate("2 + 3");
+// 5
 ```
 
-### Example 3: Complex Numbers
+In v2.0.0, `steps` is enabled by default, so `evaluate()` returns an object with both the final result and the evaluation trace:
 
 ```ts
-console.log(engine.evaluate("sqrt(-9)")); //3i
+engine.evaluate("2 + 3");
+// {
+//   result: { type: "real", value: 5, display: "5" },
+//   steps: [...]
+// }
 ```
 
----
+To get only the result, pass `{ steps: false }`:
 
-## Architecture Overview
-
-The project is modularized into independent components:
-
-| Module | Description |
-|--------|--------------|
-| `tokenizer.ts` | Splits expressions into tokens. |
-| `polish-parser.ts` | Converts tokens from infix to postfix (RPN). |
-| `PreprocessModule.ts` | Normalizes and transforms mathematical expressions — replaces symbols, standardizes syntax, and prepares input for tokenization..|
-| `polish-evaluator.ts` | Evaluates the postfix expressions. |
-| `functionsModule.ts` | Handles built-in and custom functions. |
-| `polish-engine.ts` | High-level API for developers. |
-
-### Class Diagram 
-
+```ts
+engine.evaluate("2 + 3", { steps: false });
+// { type: "real", value: 5, display: "5" }
 ```
+
+To get the old direct raw value style, disable both steps and normalization:
+
+```ts
+engine.evaluate("2 + 3", {
+  steps: false,
+  normalize: false
+});
+// 5
+```
+
+## evaluate
+
+`evaluate(expression, options)` evaluates an expression string.
+
+By default:
+
+- `steps` is `true`.
+- `normalize` is `true`.
+- The return value is `{ result, steps }`.
+
+```ts
+engine.evaluate("2 + 3");
+// {
+//   result: { type: "real", value: 5, display: "5" },
+//   steps: [...]
+// }
+```
+
+Disable steps to return only the final normalized result:
+
+```ts
+engine.evaluate("2 + 3", { steps: false });
+// { type: "real", value: 5, display: "5" }
+```
+
+Disable normalization to return raw evaluation values instead of NormalizedValue objects. If steps are still enabled, the output still includes `{ result, steps }`:
+
+```ts
+engine.evaluate("2 + 3", { normalize: false });
+// {
+//   result: 5,
+//   steps: [
+//     {
+//       type: "Operator",
+//       name: "+",
+//       operands: [2, 3],
+//       result: 5,
+//       stackBefore: [2, 3],
+//       stackAfter: [5]
+//     }
+//   ]
+// }
+```
+
+Disable both steps and normalization to return only the raw result:
+
+```ts
+engine.evaluate("2 + 3", {
+  steps: false,
+  normalize: false
+});
+// 5
+```
+
+## EvaluateOptions
+
+`evaluate` accepts either the legacy variables object or the v2 options object.
+
+```ts
+type Variables = Record<string, number>;
+
+interface EvaluateOptions {
+  variables?: Variables;
+  steps?: boolean;
+  normalize?: boolean;
+}
+```
+
+Options:
+
+- `variables`: Values used when the expression contains variables.
+- `steps`: When `true`, return `{ result, steps }`. Defaults to `true`.
+- `normalize`: When `true`, convert raw numbers and `Complex` values into `NormalizedValue`. Defaults to `true`.
+
+## NormalizedValue
+
+When normalization is enabled, values use one of these shapes.
+
+**For UI rendering, prefer the `display` property instead of manually formatting `value`, `re`, or `im`.**
+
+```ts
+type NormalizedValue =
+  | {
+      type: "real";
+      value: number;
+      display: string;
+    }
+  | {
+      type: "complex";
+      re: number;
+      im: number;
+      display: string;
+    };
+```
+
+Examples:
+
+```ts
+engine.evaluate("2 + 3", { steps: false });
+// { type: "real", value: 5, display: "5" }
+
+engine.evaluate("sqrt(-4)", { steps: false });
+// { type: "complex", re: 0, im: 2, display: "2i" }
+```
+### Using display
+
+The `display` property is intended for user interfaces and formatted output.
+
+```ts
+const result = engine.evaluate("sqrt(-4)", {
+  steps: false
+});
+
+console.log(result.display);
+// "2i"
+```
+
+For real numbers:
+
+```ts
+const result = engine.evaluate("2 + 3", {
+  steps: false
+});
+
+console.log(result.display);
+// "5"
+```
+
+### Getting the display value
+
+```ts
+const output = engine.evaluate("sqrt(-4)");
+
+console.log(output.result.display);
+// "2i"
+```
+## Evaluation Steps
+
+Steps describe how the RPN evaluator transforms the stack.
+
+Each step includes:
+
+- `type`: `"Operator"` or `"Function"`.
+- `name`: The operator or function name, such as `"+"`, `"*"`, or `"sqrt"`.
+- `operands`: Values consumed by the operation.
+- `result`: Value produced by the operation.
+- `stackBefore`: Stack state before the operation consumed its operands.
+- `stackAfter`: Stack state after the operation pushed its result.
+
+When `normalize: true`, `operands`, `result`, `stackBefore`, and `stackAfter` are normalized too.
+
+```ts
+engine.evaluate("2 + 3");
+// {
+//   result: { type: "real", value: 5, display: "5" },
+//   steps: [
+//     {
+//       type: "Operator",
+//       name: "+",
+//       operands: [
+//         { type: "real", value: 2, display: "2" },
+//         { type: "real", value: 3, display: "3" }
+//       ],
+//       result: { type: "real", value: 5, display: "5" },
+//       stackBefore: [
+//         { type: "real", value: 2, display: "2" },
+//         { type: "real", value: 3, display: "3" }
+//       ],
+//       stackAfter: [
+//         { type: "real", value: 5, display: "5" }
+//       ]
+//     }
+//   ]
+// }
+```
+
+## Variables
+
+The legacy variables API is still supported:
+
+```ts
+engine.evaluate("2x + 1", { x: 3 });
+// {
+//   result: { type: "real", value: 7, display: "7" },
+//   steps: [...]
+// }
+```
+
+The v2 options API is also supported:
+
+```ts
+engine.evaluate("2x + 1", {
+  variables: { x: 3 },
+  steps: true
+});
+// {
+//   result: { type: "real", value: 7, display: "7" },
+//   steps: [...]
+// }
+```
+
+To get only the normalized result with variables:
+
+```ts
+engine.evaluate("2x + 1", {
+  variables: { x: 3 },
+  steps: false
+});
+// { type: "real", value: 7, display: "7" }
+```
+
+## Complex Numbers
+
+Complex results are normalized by default:
+
+```ts
+engine.evaluate("sqrt(-4)");
+// {
+//   result: { type: "complex", re: 0, im: 2, display: "2i" },
+//   steps: [...]
+// }
+```
+
+With `normalize: false`, complex results are returned as raw `complex.js` `Complex` instances. If `steps` is still enabled, raw values also appear inside the evaluation steps:
+
+```ts
+engine.evaluate("sqrt(-4)", { normalize: false });
+// {
+//   result: Complex, // complex.js instance
+//   steps: [
+//     {
+//       type: "Function",
+//       name: "sqrt",
+//       operands: [-4],
+//       result: Complex,
+//       stackBefore: [-4],
+//       stackAfter: [Complex]
+//     }
+//   ]
+// }
+```
+
+When steps are disabled, the raw output is the final value directly. Access `.re` and `.im` only after confirming that the returned value is a `Complex` instance:
+
+```ts
+import Complex from "complex.js";
+
+const raw = engine.evaluate("sqrt(-4)", {
+  steps: false,
+  normalize: false
+});
+
+if (raw instanceof Complex) {
+  console.log(raw.re); // 0
+  console.log(raw.im); // 2
+}
+```
+
+## Common Examples
+
+```ts
+engine.evaluate("2 + 3 * 4", { steps: false });
+// { type: "real", value: 14, display: "14" }
+
+engine.evaluate("(2 + 3) * 4", { steps: false });
+// { type: "real", value: 20, display: "20" }
+
+engine.evaluate("4!", { steps: false });
+// { type: "real", value: 24, display: "24" }
+
+engine.evaluate("sin(0)", { steps: false });
+// { type: "real", value: 0, display: "0" }
+```
+
+## Project Structure
+
+```text
 polish-engine/
-├── src/
-│   ├── polish-engine.ts     # Main class that ties everything together
-│   ├── tokenizer.ts         # Expression tokenizer
-│   ├── polish-parser.ts     # Converts infix expressions to RPN
-│   ├── polish-evaluator.ts  # Evaluates RPN and functions
-│   ├── PreprocessModule.ts  # Normalizes and transforms expressions (symbols → functions)
-│   └── functionsModule.ts   # Custom mathematical functions
-│
-├── tests/
-│   ├── tokenizer.test.ts
-│   ├── parser.test.ts
-│   ├── evaluator.test.ts
-│   └── polish-engine.test.ts
-│
-├── package.json
-├── tsconfig.json
-├── vitest.config.ts
-├── LICENCE
-└── README.md
-
+|-- src/
+|   |-- polish-engine.ts
+|   |-- tokenizer.ts
+|   |-- polish-parser.ts
+|   |-- polish-evaluator.ts
+|   |-- preprocessModule.ts
+|   |-- result-normalizer.ts
+|   |-- evaluate-options-resolver.ts
+|   `-- functionsModule.ts
+|-- tests/
+|   |-- tokenizer.test.ts
+|   |-- parser.test.ts
+|   |-- evaluator.test.ts
+|   `-- polish-engine.test.ts
+|-- package.json
+|-- tsconfig.json
+|-- vitest.config.ts
+|-- LICENSE
+`-- README.md
 ```
 
----
-
-##  Example Integration
-
-You can easily integrate `polishEngine` into your calculator, educational, or simulation projects.
-
-```ts
-const result = engine.evaluate("sin(pi / 2) + sqrt(16)");
-console.log(result); // 5
-```
-
----
-
-##  Running Tests
-
-Run all unit tests using vitest:
+## Running Tests
 
 ```bash
 npm test
 ```
 
-Example output:
+Run the TypeScript compiler:
 
-```
- PASS  tests/polish-engine.test.ts
-  polishEngine
-    ✓ should evaluate a simple expression
-    ✓ should handle parentheses correctly
-    ✓ should calculate factorial
+```bash
+npx tsc
 ```
 
----
+## Tech Stack
 
-##  Tech Stack
+- TypeScript
+- Vitest
+- complex.js
+- ES Modules
 
-- **Language:** TypeScript
-- **Testing:** vitest
-- **Math Library:** complex.js
-- **Module Format:** ES Modules
-
----
-
-##  Example File: `polish-engine.ts`
-
-```ts
-import { Tokenizer } from "./tokenizer";
-import { parser } from "./polish-parser";
-import { evaluator } from "./polish-evaluator";
-import { preprocessExpression } from "./PreprocessModule";
-import Complex from "complex.js";
-
-export class polishEngine {
-    private tokenizer = new Tokenizer();
-    private Parser = new parser(this.tokenizer);
-    private Evaluator = new evaluator();
-
-    evaluate(expression: string, variables?: Record<string, number>) {
-        const preprocessed = preprocessExpression(expression);
-        const tokens = this.tokenizer.tokenize(preprocessed);
-        const rpn = this.Parser.toPostFix(tokens);
-        const result = this.Evaluator.evaluatePostFix(rpn, variables);
-
-        if (result instanceof Complex) {
-            if (result.im === 0) return result.re;
-            return result;
-        }
-        return result;
-    }
-}
-```
----
 ## Author
 
-**Jonathan Ventura**
+**Jonathan Ventura**  
 GitHub: [JVenturaDev](https://github.com/JVenturaDev)
 
----
+## License
 
-**License**
-
-This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)** — see the [LICENSE](LICENSE) file for full details.
-
-© 2025 Jonathan Ventura.
-You are free to use, modify, and distribute this software under the same license terms, provided that proper attribution and a copy of the GPL v3 are included.
-
----
-
-## Contributing
-
-1. Fork this repository.
-2. Create a new branch: `git checkout -b feature/new-feature`.
-3. Commit your changes: `git commit -m "Add new feature"`.
-4. Push to the branch: `git push origin feature/new-feature`.
-5. Create a Pull Request.
-
-Contributions are welcome! 
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

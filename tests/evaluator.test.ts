@@ -3,16 +3,35 @@ import { Token } from '../src/tokenizer';
 import { Tokenizer } from '../src/tokenizer';
 import { parser } from '../src/polish-parser';
 import { Complex } from 'complex.js';
-
+import { describe, test, expect } from "vitest";
 describe('evaluator', () => {
     const tokenizer = new Tokenizer();
     const Parser = new parser(tokenizer);
     const Evalr = new evaluator();
 
+    type EvalOutput =
+        | number
+        | Complex
+        | { result: number | Complex; steps: unknown[] };
+
+    function unwrapResult(result: EvalOutput): number | Complex {
+        if (
+            typeof result === 'object' &&
+            result !== null &&
+            'result' in result &&
+            'steps' in result
+        ) {
+            return result.result;
+        }
+
+        return result;
+    }
+
     function evalExpr(expr: string, variables: Record<string, number> = {}): number | Complex {
         const tokens = tokenizer.tokenize(expr);
         const postfix = Parser.toPostFix(tokens);
-        const result = Evalr.evaluatePostFix(postfix, variables);
+        const result = unwrapResult(Evalr.evaluatePostFix(postfix, variables));
+
         if (result instanceof Complex) {
             if (result.im === 0) return result.re;
             return result;
@@ -20,7 +39,6 @@ describe('evaluator', () => {
 
         return result;
     }
-
     test('evaluates simple numbers', () => {
         expect(evalExpr('2')).toBe(2);
         expect(evalExpr('3.5')).toBe(3.5);
@@ -33,7 +51,7 @@ describe('evaluator', () => {
 
     test('evaluates variables', () => {
         expect(evalExpr('x', { x: 10 })).toBe(10);
-        expect(() => evalExpr('y')).toThrow('Variable no definida: y');
+        expect(() => evalExpr('y')).toThrow('Undefined variable: y');
     });
 
     test('evaluates basic operators', () => {
@@ -94,18 +112,18 @@ describe('evaluator', () => {
     });
 
     test('throws on insufficient operands', () => {
-        expect(() => evalExpr('+')).toThrow('Error: operandos insuficientes');
-        expect(() => evalExpr('2 +')).toThrow('Error: operandos insuficientes');
+        expect(() => evalExpr('+')).toThrow('Error: insufficient operands');
+        expect(() => evalExpr('2 +')).toThrow('Error: insufficient operands');
     });
 
     test('throws on missing function arguments', () => {
         const tokens: Token[] = [{ type: 'function', value: 'sin' }];
-        expect(() => Evalr.evaluatePostFix(tokens)).toThrow('Argumento faltante para sin');
+        expect(() => Evalr.evaluatePostFix(tokens)).toThrow('Missing argument for sin');
     });
 
     test('throws on unknown function', () => {
         const tokens: Token[] = [{ type: 'number', value: '2' }, { type: 'function', value: 'unknown' }];
-        expect(() => Evalr.evaluatePostFix(tokens)).toThrow('Función desconocida: unknown');
+        expect(() => Evalr.evaluatePostFix(tokens)).toThrow('Unknown function: unknown');
     });
 
     test('throws on malformed expression', () => {
@@ -115,6 +133,6 @@ describe('evaluator', () => {
             { type: 'number', value: '3' },
             { type: 'number', value: '4' }
         ];
-        expect(() => Evalr.evaluatePostFix(tokens)).toThrow('Error: operandos insuficientes');
+        expect(() => Evalr.evaluatePostFix(tokens)).toThrow('Error: insufficient operands');
     });
 });

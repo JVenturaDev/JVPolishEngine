@@ -1,5 +1,5 @@
 export interface Token {
-    type: 'number' | 'operator' | 'variable' | 'function' | 'paren';
+    type: 'number' | 'operator' | 'variable' | 'function' | 'paren' | 'comma';
     value: string;
 }
 export class Tokenizer {
@@ -12,7 +12,7 @@ export class Tokenizer {
         'asinh', 'acosh', 'atanh',
         'asech', 'acsch', 'acoth',
         'ln', 'log', 'sqrt', 'cbrt', 'abs', 'exp', 'yroot',
-        'logxy', 'mod', 'deg', 'dms', 'factorial', '%'
+        'logxy', 'mod', 'deg', 'dms', 'factorial', "xylog", '%'
     ];
 
     tokenize(expression: string): Token[] {
@@ -41,6 +41,13 @@ export class Tokenizer {
 
                 tokens.push({ type: 'operator', value: char });
                 lastToken = tokens[tokens.length - 1];
+            }
+            else if (char === ',') {
+                if (current) {
+                    tokens.push(this.createToken(current));
+                    current = '';
+                }
+                tokens.push({ type: 'comma', value: ',' });
             }
 
             else if (/[<>⩵≠≤≥]/.test(char)) {

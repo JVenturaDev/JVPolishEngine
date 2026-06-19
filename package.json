@@ -1,10 +1,16 @@
 {
   "name": "polish-engine",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Polish notation math engine for evaluating complex mathematical expressions.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "files": [
     "dist"
   ],
@@ -26,13 +32,14 @@
     "engine"
   ],
   "author": "Jonathan Ventura",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "dependencies": {
     "complex.js": "^2.4.2"
   },
   "devDependencies": {
     "@types/complex.js": "^2.0.5",
+    "@vitest/coverage-v8": "4.1.9",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.9"
+    "vitest": "^4.1.9"
   }
 }

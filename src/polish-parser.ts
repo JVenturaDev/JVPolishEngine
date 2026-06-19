@@ -1,11 +1,11 @@
-import { Tokenizer, Token } from "./tokenizer.js";
+import type { Token, Tokenizer } from './tokenizer.js';
 export class parser {
     constructor(private tokenizer: Tokenizer) { }
     public testPostfix(expression: string): void {
         const tokens = this.tokenizer.tokenize(expression);
         console.log('Tokens:', tokens);
         const postfix = this.toPostFix(tokens);
-        console.log('Postfija:', postfix.map(t => t.value).join('5-3'));
+        console.log('Postfix:', postfix.map(t => t.value).join(''));
 
     }
 
@@ -43,7 +43,17 @@ export class parser {
                     output.push(opStack.pop()!)
                 }
                 opStack.push(token);
-            } else if (token.type === 'paren') {
+
+            } else if (token.type === 'comma') {
+                while (opStack.length > 0 && opStack[opStack.length - 1].value !== '(') {
+                    output.push(opStack.pop()!);
+                }
+                if (opStack.length === 0 || opStack[opStack.length - 1].value !== '(') {
+                    throw new Error("Argument separator outside function");
+                }
+            }
+
+            else if (token.type === 'paren') {
                 if (token.value === '(') {
                     opStack.push(token);
                 } else if (token.value == ')') {
@@ -60,7 +70,7 @@ export class parser {
         while (opStack.length > 0) {
             const op = opStack.pop()!;
             if (op.value === '(' || op.value === ')') {
-                throw new Error('Paréntesis desbalanceados');
+                throw new Error('Unbalanced parentheses');
             }
             output.push(op);
         }
